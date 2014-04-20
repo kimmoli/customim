@@ -10,12 +10,20 @@ Page
 {
     id: page
 
+    property bool showEm: false
+    property int selectedText: 0
+
     PositionSource
     {
         id: pos
         updateInterval: 1000
         active: false
-        onPositionChanged: locationParser.reload()
+        onPositionChanged:
+        {
+            if (posOn.checked)
+                showEm = true
+            locationParser.reload()
+        }
     }
 
     SilicaFlickable
@@ -39,7 +47,7 @@ Page
             id: column
 
             width: page.width
-            spacing: Theme.paddingLarge
+            spacing: Theme.paddingSmall
             PageHeader
             {
                 title: "Custom IM status"
@@ -75,14 +83,28 @@ Page
                 id: posOn
                 x: Theme.paddingLarge
                 checked: false
-                text: "GPS"
-                description: "Position source control"
+                text: "Add location"
+                description: "Get GPS location"
                 onClicked:
                 {
+                    showEm = false
+                    autoUpdate.checked = false
+                    addToStatus.text = "Wait..."
                     if (checked)
                         pos.update()
                 }
             }
+
+            TextSwitch
+            {
+                visible: posOn.checked
+                id: autoUpdate
+                x: Theme.paddingLarge
+                checked: false
+                text: "Auto refresh"
+                description: "Update every 15 min"
+            }
+
 
             Label
             {
@@ -92,7 +114,17 @@ Page
                 color: enabled ? Theme.primaryColor : Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeMedium
 
-                text: "Select below"
+                text: showEm ? "Select below" : "Wait..."
+            }
+            Timer
+            {
+                running: autoUpdate.checked
+                repeat: true
+                interval: 10000 /* testing, change to 900000 */
+                onTriggered:
+                {
+                    pos.update()
+                }
             }
 
             XmlListModel
@@ -104,53 +136,57 @@ Page
 
                     query: "/GeocodeResponse/result"
 
-                    XmlRole { name: "formatted_address";    query: "formatted_address/string()" }
+                    XmlRole
+                    {
+                        name: "formatted_address";
+                        query: "formatted_address/string()"
+                    }
+
+                    onStatusChanged:
+                        if (status == XmlListModel.Ready)
+                        {
+                            addToStatus.text = locationParser.get(selectedText).formatted_address
+                            if (autoUpdate.checked)
+                                custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text)
+                        }
+
             }
 
             VerticalSeparator
             {
-                visible: posOn.checked
+                visible: showEm
             }
 
-            Rectangle
+            Repeater
             {
-                visible: posOn.checked
-                width: parent.width - (2 * Theme.paddingLarge)
-                height: 3 * Theme.itemSizeSmall
-                color: "Transparent"
-                anchors.horizontalCenter: parent.horizontalCenter
+                model: locationParser
 
-                SilicaListView
+                BackgroundItem
                 {
-                    id: locationText
-                    width: parent.width
-                    height: parent.height
-                    model: locationParser
-                    anchors.topMargin: Theme.itemSizeSmall
-                    clip: true
-                    VerticalScrollDecorator {}
-
-                    delegate: BackgroundItem
+                    visible: showEm
+                    width: column.width - (2 * Theme.paddingLarge)
+                    height: Theme.itemSizeSmall
+                    onClicked:
                     {
-                        id: listItem
+                        selectedText = index
+                        addToStatus.text = formatted_address
+                    }
+                    x: Theme.paddingLarge
+                    Label
+                    {
+                        visible: showEm
                         width: parent.width
-                        height: Theme.itemSizeSmall
-                        property string labelText : formatted_address
-                        onClicked: addToStatus.text = labelText
-
-                        Label
-                        {
-                            id: label
-                            text: listItem.labelText
-                            color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
-                            font.pixelSize: Theme.fontSizeSmall
-                        }
+                        text: formatted_address
+                        color: (index == selectedText) ? Theme.highlightColor : Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        anchors.centerIn: parent
                     }
                 }
             }
+
             VerticalSeparator
             {
-                visible: posOn.checked
+                visible: showEm
             }
         }
 
