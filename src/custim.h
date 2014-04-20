@@ -2,26 +2,32 @@
 #define CUSTIM_H
 #include <QObject>
 
+
 class CustIM : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString variable READ readVar WRITE writeVar(QString) NOTIFY varChanged())
+    Q_PROPERTY(QString version READ readVersion NOTIFY versionChanged())
+    Q_PROPERTY(QString storedStatus READ readStoredStatus NOTIFY storedStatusChanged())
 
 public:
     explicit CustIM(QObject *parent = 0);
     ~CustIM();
 
-    QString readVar();
-    void writeVar(QString);
+    QString readVersion();
 
-    Q_INVOKABLE void readInitParams();
-    Q_INVOKABLE void updateImStatus(QString message);
+    Q_INVOKABLE void updateImStatus(QString message, bool addLocation, QString location);
+
+    void readSettings();
+    QString readStoredStatus();
 
 signals:
-    void varChanged();
+    void versionChanged();
+    void storedStatusChanged();
+
 
 private:
-    QString m_var;
+    QString m_storedStatus;
+
 };
 
 

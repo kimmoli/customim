@@ -1,7 +1,9 @@
 #include "custim.h"
-#include <QSettings>
 #include <QCoreApplication>
+#include <QSettings>
 #include <QtDBus/QtDBus>
+
+
 
 struct SimplePresence
 {
@@ -9,6 +11,7 @@ struct SimplePresence
         QString status;
         QString message;
 };
+
 Q_DECLARE_METATYPE(SimplePresence)
 QDBusArgument &operator<<(QDBusArgument &argument, const SimplePresence &mystatus)
 {
@@ -35,39 +38,57 @@ const QDBusArgument &operator>>(const QDBusArgument &argument, SimplePresence &m
 CustIM::CustIM(QObject *parent) :
     QObject(parent)
 {
-    m_var = "";
     qDBusRegisterMetaType<SimplePresence>();
+
+    readSettings();
+
+    emit versionChanged();
 }
 
-void CustIM::readInitParams()
-{
-    QSettings settings;
-    m_var = settings.value("var", "").toString();
-
-    emit varChanged();
-}
 
 CustIM::~CustIM()
 {
 }
 
 
-QString CustIM::readVar()
+QString CustIM::readVersion()
 {
-    return m_var;
+    return GITHASH;
 }
 
-void CustIM::writeVar(QString s)
+void CustIM::readSettings()
 {
-    m_var = s;
+    QSettings s("kimmoli", "customim");
 
-    emit varChanged();
+    s.beginGroup("settings");
+    m_storedStatus = s.value("status", "First time here?").toString();
+    s.endGroup();
+
+    emit storedStatusChanged();
 }
 
-void CustIM::updateImStatus(QString message)
+QString CustIM::readStoredStatus()
+{
+    return m_storedStatus;
+}
+
+
+void CustIM::updateImStatus(QString message, bool addLocation, QString location)
 {
     unsigned type = 2;
     QString status = "Available";
+
+    QSettings s("kimmoli", "customim");
+
+    m_storedStatus = message;
+
+    s.beginGroup("settings");
+    s.setValue("status", m_storedStatus);
+    s.endGroup();
+
+    emit storedStatusChanged();
+
+    QString fullMessage = (addLocation ? (message + " | " + location) : message);
 
     QDBusConnection bus = QDBusConnection::sessionBus();
 
@@ -77,7 +98,7 @@ void CustIM::updateImStatus(QString message)
 
         ms.type = type; // 3;
         ms.status = status; // "away";
-        ms.message = message; // "Fishing.";
+        ms.message = fullMessage; // "Fishing.";
 
         dbi = new QDBusInterface("org.freedesktop.Telepathy.AccountManager", "/org/freedesktop/Telepathy/AccountManager", "", bus, this);
         QDBusReply<QDBusVariant> reply = dbi->call(QDBus::AutoDetect, "Get", "org.freedesktop.Telepathy.AccountManager", "ValidAccounts");
@@ -99,74 +120,4 @@ void CustIM::updateImStatus(QString message)
                 arg.endArray();
         }
 }
-//void CustIM::updateImStatus(QString status)
-//{
-
-//    int n;
-
-
-//    if (!QDBusConnection::sessionBus().isConnected()) {
-//        qDebug( "Cannot connect to the D-Bus session bus.\n"
-//                "To start it, run:\n"
-//                "\teval `dbus-launch --auto-syntax`\n");
-//        return;
-//    }
-//    else
-//        qDebug("Connected to sessionBus");
-
-//    QDBusInterface iface("org.freedesktop.Telepathy.AccountManager",
-//                         "/org/freedesktop/Telepathy/AccountManager",
-//                         "org.freedesktop.DBus.Properties",
-//                         QDBusConnection::sessionBus());
-//    if (iface.isValid())
-//    {
-//        qDebug("interface is valid");
-
-//        QDBusMessage reply = iface.call("Get", "org.freedesktop.Telepathy.AccountManager","ValidAccounts");
-
-//        qDebug() << reply;
-
-//        QList<QVariant> outArgs = reply.arguments();
-//        QVariant first = outArgs.at(0);
-//        QDBusVariant dbvFirst = first.value<QDBusVariant>();
-//        QVariant vFirst = dbvFirst.variant();
-//        QDBusArgument dbusArgs = vFirst.value<QDBusArgument>();
-//        qDebug() << "QDBusArgument current type is" << dbusArgs.currentType();
-
-//        QDBusObjectPath path;
-
-//        dbusArgs.beginArray();
-
-//        while (!dbusArgs.atEnd())
-//        {
-//            dbusArgs >> path;
-//            qDebug() << "path == " << path.path();
-//            if (!(path.path().contains("/org/freedesktop/Telepathy/Account/ring/tel")))
-//            {
-//                qDebug("Processing this !!\n");
-//                QDBusInterface ixface("org.freedesktop.Telepathy.AccountManager",
-//                                     path.path(),
-//                                     "org.freedesktop.DBus.Properties",
-//                                     QDBusConnection::sessionBus());
-//                if (ixface.isValid())
-//                {
-//                    qDebug("interface is valid");
-//                    QDBusReply<QString> rr = ixface.call("Set", "org.freedesktop.Telepathy.Account" ,"RequestedPresence", quint32(2), "Online", "kukkuu");
-//                    qDebug() << rr;
-
-//                }
-
-
-//            }
-//            // append path to a vector here if you want to keep it
-//        }
-//        dbusArgs.endArray();
-
-
-
-
-////        qDebug("Call failed: %s\n", qPrintable(reply.error().message()));
-////        return;
-//    }
-//}
 

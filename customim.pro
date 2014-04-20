@@ -11,7 +11,21 @@ TARGET = customim
 DEFINES += QT_VERSION_5
 
 CONFIG += sailfishapp
+
+#Force building to update version and build-date
+system(rm $$OUT_PWD/custim.o)
+
+#show some info about git status
+system(git --git-dir $$PWD/.git diff --name-only)
+
+REVISION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --dirty=-dev --always)
+DEFINES += "GITHASH=\\\"$${REVISION}\\\""
+
+message($${REVISION})
+
+
 QT += dbus
+QT += positioning
 
 SOURCES += src/customim.cpp \
 	src/custim.cpp
@@ -24,5 +38,8 @@ OTHER_FILES += qml/customim.qml \
     rpm/customim.spec \
     rpm/customim.yaml \
 	customim.png \
-    customim.desktop
+    customim.desktop \
+    qml/pages/aboutPage.qml \
+    qml/data.xml \
+    qml/parts/VerticalSeparator.qml
 
