@@ -11,7 +11,8 @@ Page
     id: page
 
     property bool showEm: false
-    property int selectedText: 0
+    property bool firstRun: true
+    property int selText: custim.textType
 
     PositionSource
     {
@@ -68,7 +69,7 @@ Page
                 EnterKey.text: "Set"
                 EnterKey.onClicked:
                 {
-                    custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text)
+                    custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
                     focus = false
                 }
             }
@@ -82,10 +83,10 @@ Page
             {
                 id: posOn
                 x: Theme.paddingLarge
-                checked: false
+                checked: custim.addLocation
                 text: "Add location"
                 description: "Get GPS location"
-                onClicked:
+                onCheckedChanged:
                 {
                     showEm = false
                     autoUpdate.checked = false
@@ -93,6 +94,9 @@ Page
                     if (checked)
                         pos.update()
                 }
+                onClicked:  /* If clicked to disable, update status to remove location, and to store changed setting */
+                    if (!checked)
+                        custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
             }
 
             TextSwitch
@@ -145,10 +149,15 @@ Page
                     onStatusChanged:
                         if (status == XmlListModel.Ready)
                         {
-                            addToStatus.text = locationParser.get(selectedText).formatted_address
-                            if (autoUpdate.checked)
-                                custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text)
+                            if (!firstRun || posOn.checked)
+                            {
+                                addToStatus.text = locationParser.get(selText).formatted_address
+                                custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
+                                console.log(source)
+                            }
+                            firstRun = false
                         }
+
 
             }
 
@@ -168,8 +177,9 @@ Page
                     height: Theme.itemSizeSmall
                     onClicked:
                     {
-                        selectedText = index
+                        selText = index
                         addToStatus.text = formatted_address
+                        custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
                     }
                     x: Theme.paddingLarge
                     Label
@@ -177,7 +187,7 @@ Page
                         visible: showEm
                         width: parent.width
                         text: formatted_address
-                        color: (index == selectedText) ? Theme.highlightColor : Theme.primaryColor
+                        color: (index == selText) ? Theme.highlightColor : Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         anchors.centerIn: parent
                     }
@@ -195,6 +205,8 @@ Page
     CustIM
     {
         id: custim
+        onTextTypeChanged:
+            selText = custim.textType
     }
 }
 

@@ -62,9 +62,12 @@ void CustIM::readSettings()
 
     s.beginGroup("settings");
     m_storedStatus = s.value("status", "First time here?").toString();
+    m_textType = s.value("type", 0).toInt();
+    m_addLocation = s.value("addLocation", false).toBool();
     s.endGroup();
 
     emit storedStatusChanged();
+    emit textTypeChanged();
 }
 
 QString CustIM::readStoredStatus()
@@ -72,8 +75,18 @@ QString CustIM::readStoredStatus()
     return m_storedStatus;
 }
 
+int CustIM::readTextType()
+{
+    return m_textType;
+}
 
-void CustIM::updateImStatus(QString message, bool addLocation, QString location)
+bool CustIM::readAddLocation()
+{
+    return m_addLocation;
+}
+
+
+void CustIM::updateImStatus(QString message, bool addLocation, QString location, int textType)
 {
     unsigned type = 2;
     QString status = "Available";
@@ -81,12 +94,18 @@ void CustIM::updateImStatus(QString message, bool addLocation, QString location)
     QSettings s("kimmoli", "customim");
 
     m_storedStatus = message;
+    m_textType = textType;
+    m_addLocation = addLocation;
 
     s.beginGroup("settings");
     s.setValue("status", m_storedStatus);
+    s.setValue("type", m_textType);
+    s.setValue("addLocation", m_addLocation);
     s.endGroup();
 
     emit storedStatusChanged();
+    emit textTypeChanged();
+    emit addLocationChanged();
 
     QString fullMessage = (addLocation ? (message + " | " + location) : message);
 
