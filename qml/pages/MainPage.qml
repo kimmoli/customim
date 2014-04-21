@@ -153,7 +153,7 @@ Page
             {
                 running: autoUpdate.checked
                 repeat: true
-                interval: 10000 // 900000
+                interval: 900000
                 onTriggered:
                 {
                     updateRunning = true

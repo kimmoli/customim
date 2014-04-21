@@ -14,7 +14,7 @@ Name:       customim
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Custom IM message
 Version:    0.1
-Release:    1
+Release:    6
 Group:      Qt/Qt
 License:    LICENSE
 URL:        http://example.org/
