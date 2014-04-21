@@ -7,11 +7,24 @@ import customim.CustIM 1.0
 
 Page
 {
-    id: page
+    id: mainPage
+
+    property alias autoUpdate : posOn.checked
+    property bool updateRunning : true
 
     property bool showEm: false
     property bool firstRun: true
     property int selText: custim.textType
+
+    property bool coverUpdate : false
+
+    onCoverUpdateChanged:
+        if (coverUpdate)
+        {
+            console.log("Cover requested update")
+            updateRunning = true
+            pos.update()
+        }
 
     PositionSource
     {
@@ -49,7 +62,7 @@ Page
         {
             id: column
 
-            width: page.width
+            width: mainPage.width
             spacing: Theme.paddingSmall
             PageHeader
             {
@@ -99,7 +112,10 @@ Page
                         autoUpdate.checked = false
                         addToStatus.text = "Wait..."
                         if (checked)
+                        {
+                            updateRunning = true
                             pos.update()
+                        }
                     }
                     onClicked:  /* If clicked to disable, update status to remove location, and to store changed setting */
                         if (!checked)
@@ -137,9 +153,10 @@ Page
             {
                 running: autoUpdate.checked
                 repeat: true
-                interval: 900000
+                interval: 10000 // 900000
                 onTriggered:
                 {
+                    updateRunning = true
                     pos.update()
                 }
             }
@@ -171,6 +188,7 @@ Page
                             console.log(source)
                         }
                         firstRun = false
+                        updateRunning = false
                     }
                 }
             }
