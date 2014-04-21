@@ -4,7 +4,6 @@ import Sailfish.Silica 1.0
 import QtPositioning 5.0
 import QtQuick.XmlListModel 2.0
 import customim.CustIM 1.0
-import "../parts"
 
 Page
 {
@@ -37,7 +36,10 @@ Page
             {
                 text: "About"
                 onClicked: pageStack.push(Qt.resolvedUrl("aboutPage.qml"),
-                                          { "version": custim.version, "year": "2014", "name": "Custom IM status" } )
+                                          { "version": custim.version,
+                                              "year": "2014",
+                                              "name": "Custom IM status",
+                                              "imagelocation": "../customim.png"} )
             }
         }
 
@@ -135,7 +137,7 @@ Page
             {
                 running: autoUpdate.checked
                 repeat: true
-                interval: 10000 /* testing, change to 900000 */
+                interval: 900000
                 onTriggered:
                 {
                     pos.update()
@@ -173,11 +175,6 @@ Page
                 }
             }
 
-//            VerticalSeparator
-//            {
-//                visible: showEm
-//            }
-
             Repeater
             {
                 model: locationParser
@@ -208,10 +205,6 @@ Page
                 }
             }
 
-            VerticalSeparator
-            {
-                visible: showEm
-            }
         }
 
     }

@@ -37,8 +37,9 @@ OTHER_FILES += qml/customim.qml \
     qml/pages/MainPage.qml \
     rpm/customim.spec \
     rpm/customim.yaml \
-	customim.png \
     customim.desktop \
     qml/pages/aboutPage.qml \
-    qml/data.xml
+    qml/data.xml \
+    qml/customim.png \
+    customim.png
 

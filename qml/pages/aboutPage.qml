@@ -11,6 +11,7 @@ Page
     property string name
     property string year
     property string version
+    property string imagelocation
 
     id: page
 
@@ -39,6 +40,22 @@ Page
                 font.bold: true
                 anchors.horizontalCenter: parent.horizontalCenter
             }
+            Rectangle
+            {
+                visible: imagelocation.length > 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 120
+                width: 120
+                color: "transparent"
+
+                Image
+                {
+                    visible: imagelocation.length > 0
+                    source: imagelocation
+                    anchors.centerIn: parent
+                }
+            }
+
             Label
             {
                 x: Theme.paddingLarge
