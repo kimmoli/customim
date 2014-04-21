@@ -8,9 +8,12 @@ ApplicationWindow
 {
     id: app
 
-    property bool autoUpdate : false
+    property bool withLocation : false
     property bool updateRunning : false
     property bool coverUpdate : false
+    property string yourMessage
+    property string yourLocation
+
 
     initialPage: mainPage
 
@@ -24,11 +27,15 @@ ApplicationWindow
             /* this was tricky */
             Component.onCompleted:
             {
-                app.autoUpdate = autoUpdate
+                app.withLocation = withLocation
                 app.updateRunning = updateRunning
+                app.yourMessage = yourMessage
+                app.yourLocation = yourLocation
             }
-            onAutoUpdateChanged: app.autoUpdate = autoUpdate
+            onWithLocationChanged: app.withLocation = withLocation
             onUpdateRunningChanged: app.updateRunning = updateRunning
+            onYourMessageChanged: app.yourMessage = yourMessage
+            onYourLocationChanged: app.yourLocation = yourLocation
 
             coverUpdate: app.coverUpdate
         }

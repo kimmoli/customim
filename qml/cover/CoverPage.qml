@@ -8,21 +8,51 @@ CoverBackground
 
     Image
     {
-         source: "../customim.png"
-         anchors.centerIn: parent
-         Label
-         {
-             anchors.bottom: parent.top
-             anchors.bottomMargin: 15
-             anchors.horizontalCenter: parent.horizontalCenter
-             font.pixelSize: 25
-             text: "Custom status"
-         }
-     }
+        id: cim
+        source: "../customim.png"
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 60
+
+        Label
+        {
+            anchors.bottom: parent.top
+            anchors.bottomMargin: 15
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: Theme.fontSizeSmall
+            text: "Custom status"
+        }
+    }
+
+    Label
+    {
+        id: ym
+        anchors.top: cim.bottom
+        anchors.topMargin: 15
+        anchors.horizontalCenter: parent.horizontalCenter
+        font.pixelSize: Theme.fontSizeTiny
+        text: app.yourMessage
+        width: parent.width
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        horizontalAlignment: Text.AlignHCenter
+    }
+    Label
+    {
+        visible: app.withLocation
+        anchors.top: ym.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        font.pixelSize: Theme.fontSizeTiny
+        text: app.updateRunning ? "Updating..." : app.yourLocation
+        width: parent.width
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        horizontalAlignment: Text.AlignHCenter
+    }
+
+
      CoverActionList
      {
         id: coverActions
-        enabled: app.autoUpdate && !app.updateRunning
+        enabled: app.withLocation && !app.updateRunning
 
         CoverAction {
             id: coverAction

@@ -9,8 +9,10 @@ Page
 {
     id: mainPage
 
-    property alias autoUpdate : posOn.checked
+    property alias withLocation : posOn.checked
     property bool updateRunning : true
+    property alias yourMessage : imStatus.text
+    property alias yourLocation : addToStatus.text
 
     property bool showEm: false
     property bool firstRun: true
