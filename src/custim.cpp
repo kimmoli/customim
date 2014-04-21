@@ -115,9 +115,9 @@ void CustIM::updateImStatus(QString message, bool addLocation, QString location,
          QDBusArgument a;
          SimplePresence ms;
 
-        ms.type = type; // 3;
-        ms.status = status; // "away";
-        ms.message = fullMessage; // "Fishing.";
+        ms.type = type;
+        ms.status = status;
+        ms.message = fullMessage;
 
         dbi = new QDBusInterface("org.freedesktop.Telepathy.AccountManager", "/org/freedesktop/Telepathy/AccountManager", "", bus, this);
         QDBusReply<QDBusVariant> reply = dbi->call(QDBus::AutoDetect, "Get", "org.freedesktop.Telepathy.AccountManager", "ValidAccounts");

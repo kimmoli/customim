@@ -40,6 +40,5 @@ OTHER_FILES += qml/customim.qml \
 	customim.png \
     customim.desktop \
     qml/pages/aboutPage.qml \
-    qml/data.xml \
-    qml/parts/VerticalSeparator.qml
+    qml/data.xml
 

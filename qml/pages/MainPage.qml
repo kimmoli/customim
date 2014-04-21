@@ -79,47 +79,58 @@ Page
                 text: "Position information"
             }
 
-            TextSwitch
+            Row
             {
-                id: posOn
-                x: Theme.paddingLarge
-                checked: custim.addLocation
-                text: "Add location"
-                description: "Get GPS location"
-                onCheckedChanged:
+                width: parent.width
+                spacing: Theme.paddingSmall
+
+                TextSwitch
                 {
-                    showEm = false
-                    autoUpdate.checked = false
-                    addToStatus.text = "Wait..."
-                    if (checked)
-                        pos.update()
+                    id: posOn
+                    checked: custim.addLocation
+                    width: (parent.width - Theme.paddingSmall) / 2
+                    text: "Add location"
+                    description: "Get GPS location"
+                    onCheckedChanged:
+                    {
+                        showEm = false
+                        autoUpdate.checked = false
+                        addToStatus.text = "Wait..."
+                        if (checked)
+                            pos.update()
+                    }
+                    onClicked:  /* If clicked to disable, update status to remove location, and to store changed setting */
+                        if (!checked)
+                            custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
                 }
-                onClicked:  /* If clicked to disable, update status to remove location, and to store changed setting */
-                    if (!checked)
-                        custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
+
+                TextSwitch
+                {
+                    id: autoUpdate
+                    visible: posOn.checked
+                    width: (parent.width - Theme.paddingSmall) / 2
+                    checked: false
+                    text: "Auto refresh"
+                    description: "Update every 15 min"
+                }
             }
 
-            TextSwitch
+            SectionHeader
             {
-                visible: posOn.checked
-                id: autoUpdate
-                x: Theme.paddingLarge
-                checked: false
-                text: "Auto refresh"
-                description: "Update every 15 min"
+                text: "Current location"
+                visible: showEm
             }
-
 
             Label
             {
                 id: addToStatus
-                visible: posOn.checked
+                visible: posOn.checked && text === "Wait..."
                 x: Theme.paddingLarge
-                color: enabled ? Theme.primaryColor : Theme.secondaryColor
+                height: Theme.itemSizeSmall
                 font.pixelSize: Theme.fontSizeMedium
-
-                text: showEm ? "Select below" : "Wait..."
+                text: "Wait..."
             }
+
             Timer
             {
                 running: autoUpdate.checked
@@ -133,38 +144,39 @@ Page
 
             XmlListModel
             {
-                    id: locationParser
+                /* uses google geocoding reverse api to get some details about your location */
+                id: locationParser
 
-                    source: "http://maps.googleapis.com/maps/api/geocode/xml?latlng=" + pos.position.coordinate.latitude +
-                            "," + pos.position.coordinate.longitude + "&sensor=true"
+                source: "https://maps.googleapis.com/maps/api/geocode/xml?latlng=" + pos.position.coordinate.latitude +
+                        "," + pos.position.coordinate.longitude + "&sensor=true"
 
-                    query: "/GeocodeResponse/result"
+                query: "/GeocodeResponse/result"
 
-                    XmlRole
+                XmlRole
+                {
+                    name: "formatted_address";
+                    query: "formatted_address/string()"
+                }
+
+                onStatusChanged:
+                {
+                    if (status == XmlListModel.Ready)
                     {
-                        name: "formatted_address";
-                        query: "formatted_address/string()"
-                    }
-
-                    onStatusChanged:
-                        if (status == XmlListModel.Ready)
+                        if (!firstRun || posOn.checked)
                         {
-                            if (!firstRun || posOn.checked)
-                            {
-                                addToStatus.text = locationParser.get(selText).formatted_address
-                                custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
-                                console.log(source)
-                            }
-                            firstRun = false
+                            addToStatus.text = locationParser.get(selText).formatted_address
+                            custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
+                            console.log(source)
                         }
-
-
+                        firstRun = false
+                    }
+                }
             }
 
-            VerticalSeparator
-            {
-                visible: showEm
-            }
+//            VerticalSeparator
+//            {
+//                visible: showEm
+//            }
 
             Repeater
             {
@@ -175,13 +187,15 @@ Page
                     visible: showEm
                     width: column.width - (2 * Theme.paddingLarge)
                     height: Theme.itemSizeSmall
+                    x: Theme.paddingLarge
+
                     onClicked:
                     {
                         selText = index
                         addToStatus.text = formatted_address
                         custim.updateImStatus(imStatus.text, posOn.checked, addToStatus.text, selText)
                     }
-                    x: Theme.paddingLarge
+
                     Label
                     {
                         visible: showEm
