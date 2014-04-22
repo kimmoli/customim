@@ -99,19 +99,21 @@ Page
             Row
             {
                 width: parent.width
-                spacing: Theme.paddingSmall
+                spacing: 0
 
                 TextSwitch
                 {
                     id: posOn
                     checked: custim.addLocation
-                    width: (parent.width - Theme.paddingSmall) / 2
+                    width: parent.width / 2 - Theme.paddingMedium
                     text: "Add location"
                     description: "Get GPS location"
+                    rightMargin: Theme.paddingSmall
+
                     onCheckedChanged:
                     {
                         showEm = false
-                        autoUpdate.checked = false
+//                        autoUpdate.checked = false
                         addToStatus.text = "Wait..."
                         if (checked)
                         {
@@ -128,17 +130,71 @@ Page
                 {
                     id: autoUpdate
                     visible: posOn.checked
-                    width: (parent.width - Theme.paddingSmall) / 2
-                    checked: false
-                    text: "Auto refresh"
-                    description: "Update every 15 min"
+                    width: parent.width / 2 + Theme.paddingMedium
+                    checked: (refreshConfig.currentIndex > 0)
+                    text: "Refresh"
+                    description: refreshConfig.label + refreshConfig.value
+                    rightMargin: Theme.paddingSmall
+                    automaticCheck: false
+
+                    onDownChanged:
+                    {
+                        if (down)
+                            longPress.restart()
+                        else
+                        {
+                            if (longPress.running)
+                            {
+                                /* Just refresh */
+                                longPress.stop()
+                                addToStatus.text = "Wait..."
+                                updateRunning = true
+                                pos.update()
+                            }
+                        }
+                    }
+
+                    PropertyAnimation
+                    {
+                        /* This mimics press and hold thing */
+                        id: longPress;
+                        target: refreshConfig;
+                        property: "visible";
+                        to: !refreshConfig.visible;
+                        duration: 1000;
+                    }
                 }
+            }
+
+            ComboBox
+            {
+                id: refreshConfig
+                visible: false
+                label: "Auto refresh  "
+                onStateChanged:
+                {
+                    /* autohide after selection done - didn't find better way */
+                    if (state != "anonymousState1")
+                    {
+                        visible = false
+                        refreshTimer.restart()
+                    }
+                }
+
+                menu: ContextMenu
+                {
+                    MenuItem { text: "Off" }
+                    MenuItem { text: "5 min" }
+                    MenuItem { text: "15 min" }
+                    MenuItem { text: "30 min" }
+                }
+
             }
 
             SectionHeader
             {
                 text: "Current location"
-                visible: showEm
+                visible: posOn.checked
             }
 
             Label
@@ -153,11 +209,24 @@ Page
 
             Timer
             {
+                id: refreshTimer
                 running: autoUpdate.checked
                 repeat: true
-                interval: 900000
+                interval:
+                {
+                    if (refreshConfig.currentIndex === 1)
+                        return 300000
+                    else if (refreshConfig.currentIndex === 2)
+                        return 900000
+                    else if (refreshConfig.currentIndex === 2)
+                        return 1800000
+                    else
+                        return 60000
+                }
+
                 onTriggered:
                 {
+                    addToStatus.text = "Wait..."
                     updateRunning = true
                     pos.update()
                 }
@@ -201,7 +270,7 @@ Page
 
                 BackgroundItem
                 {
-                    visible: showEm
+                    visible: showEm && (addToStatus.text != "Wait...")
                     width: column.width - (2 * Theme.paddingLarge)
                     height: Theme.itemSizeSmall
                     x: Theme.paddingLarge

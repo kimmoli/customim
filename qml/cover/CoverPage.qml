@@ -32,7 +32,7 @@ CoverBackground
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: Theme.fontSizeTiny
         text: app.yourMessage
-        width: parent.width
+        width: parent.width - 5
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter
     }
@@ -40,10 +40,11 @@ CoverBackground
     {
         visible: app.withLocation
         anchors.top: ym.bottom
+        anchors.topMargin: 10
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: Theme.fontSizeTiny
         text: app.updateRunning ? "Updating..." : app.yourLocation
-        width: parent.width
+        width: parent.width - 5
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter
     }
