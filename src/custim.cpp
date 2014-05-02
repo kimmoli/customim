@@ -53,7 +53,7 @@ CustIM::~CustIM()
 
 QString CustIM::readVersion()
 {
-    return GITHASH;
+    return APPVERSION;
 }
 
 void CustIM::readSettings()

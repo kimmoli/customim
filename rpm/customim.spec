@@ -42,7 +42,7 @@ Short description of my SailfishOS Application
 # >> build pre
 # << build pre
 
-%qtc_qmake5 
+%qtc_qmake5 SPECVERSION=%{version}
 
 %qtc_make %{?_smp_mflags}
 
@@ -63,8 +63,8 @@ desktop-file-install --delete-original       \
    %{buildroot}%{_datadir}/applications/*.desktop
 
 %files
-%defattr(-,root,root,-)
-%{_bindir}
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}
 %{_datadir}/%{name}/qml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/86x86/apps/%{name}.png

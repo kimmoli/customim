@@ -12,17 +12,9 @@ DEFINES += QT_VERSION_5
 
 CONFIG += sailfishapp
 
-#Force building to update version and build-date
-system(rm $$OUT_PWD/custim.o)
+DEFINES += "APPVERSION=\\\"$${SPECVERSION}\\\""
 
-#show some info about git status
-system(git --git-dir $$PWD/.git diff --name-only)
-
-REVISION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --dirty=-dev --always)
-DEFINES += "GITHASH=\\\"$${REVISION}\\\""
-
-message($${REVISION})
-
+message($${DEFINES})
 
 QT += dbus
 QT += positioning
