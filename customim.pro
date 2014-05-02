@@ -30,7 +30,6 @@ OTHER_FILES += qml/customim.qml \
     rpm/customim.spec \
     customim.desktop \
     qml/pages/aboutPage.qml \
-    qml/data.xml \
     qml/customim.png \
     customim.png
 
