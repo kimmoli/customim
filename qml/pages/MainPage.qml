@@ -136,6 +136,7 @@ Page
                     description: refreshConfig.label + refreshConfig.value
                     rightMargin: Theme.paddingSmall
                     automaticCheck: false
+                    busy: (addToStatus.text == "Wait...")
 
                     onDownChanged:
                     {

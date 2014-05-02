@@ -36,7 +36,6 @@ OTHER_FILES += qml/customim.qml \
     qml/cover/CoverPage.qml \
     qml/pages/MainPage.qml \
     rpm/customim.spec \
-    rpm/customim.yaml \
     customim.desktop \
     qml/pages/aboutPage.qml \
     qml/data.xml \
